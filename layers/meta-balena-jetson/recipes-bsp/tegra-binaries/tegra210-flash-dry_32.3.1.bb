@@ -20,6 +20,8 @@ inherit deploy pythonnative perlnative
 SRC_URI = " \
     file://resinOS-flash210-tx1.xml \
     file://partition_specification210_tx1.txt \
+    file://flash.xml.bin.tx1 \
+    file://jetson-tx1.bct.tx1 \
     "
 
 KERNEL_DEVICETREE_jetson-tx1 = "${DEPLOY_DIR_IMAGE}/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb"
@@ -65,8 +67,6 @@ do_configure() {
     cp "${DEPLOY_DIR_IMAGE}/${LNXFILE}" ./${LNXFILE}
     cp "${DEPLOY_DIR_IMAGE}/${DTBFILE}" ./${DTBFILE}
     ln -s "${STAGING_DATADIR}/tegraflash/board_config_${MACHINE}.xml" .
-    boardcfg=board_config_${MACHINE}.xml
-
 
     if [ -n "${KERNEL_ARGS}" ]; then
         fdtput -t s ./${DTBFILE} /chosen bootargs "${KERNEL_ARGS}"
@@ -97,35 +97,25 @@ do_configure() {
     ln -sf ${STAGING_BINDIR_NATIVE}/tegra210-flash/
     rm -rf signed
 
-    local destdir="$1"
-    local gptsize="$2"
-    local ebtsize=$(tegraflash_roundup_size cboot.bin)
-    local nvcsize=$(tegraflash_roundup_size nvtboot.bin)
-    local tbcsize=$(tegraflash_roundup_size nvtboot_cpu.bin)
-    local dtbsize=$(tegraflash_roundup_size ${DTBFILE})
-    local bpfsize=$(tegraflash_roundup_size sc7entry-firmware.bin)
-    local wb0size=$(tegraflash_roundup_size warmboot.bin)
-    local tossize=$(tegraflash_roundup_size tos-mon-only.img)
-
     # flash.xml comes with placeholders for partition
     # names and binaries to be signed
     cat "flash.210.in" | sed -e "s,EBTFILE,cboot.bin," \
-        -e "s,EBTFILE,cboot.bin," -e"s,EBTSIZE,$ebtsize," \
-        -e "/NCTFILE/d" -e"s,NCTTYPE,data," \
+        -e "s,EBTFILE,cboot.bin," \
+        -e "/NCTFILE/d" -e "s,NCTTYPE,data," \
         -e "/SOSFILE/d" \
-        -e "s,NXC,NVC," -e"s,NVCTYPE,bootloader," -e"s,NVCFILE,nvtboot.bin," \
-        -e "s,MPBTYPE,data," -e"/MPBFILE/d" \
-        -e "s,MBPTYPE,data," -e"/MBPFILE/d" \
-        -e "s,BXF,BPF," -e"s,BPFFILE,sc7entry-firmware.bin," \
+        -e "s,NXC,NVC," -e "s,NVCTYPE,bootloader," -e "s,NVCFILE,nvtboot.bin," \
+        -e "s,MPBTYPE,data," -e "/MPBFILE/d" \
+        -e "s,MBPTYPE,data," -e "/MBPFILE/d" \
+        -e "s,BXF,BPF," -e "s,BPFFILE,sc7entry-firmware.bin," \
         -e "/BPFDTB-FILE/d" \
-        -e "s,WX0,WB0," -e"s,WB0TYPE,WB0," -e"s,WB0FILE,warmboot.bin," \
-        -e "s,TXS,TOS," -e"s,TOSFILE,tos-mon-only.img," \
-        -e "s,EXS,EKS," -e"s,EKSFILE,eks.img," \
+        -e "s,WX0,WB0," -e " s,WB0TYPE,WB0," -e "s,WB0FILE,warmboot.bin," \
+        -e "s,TXS,TOS," -e " s,TOSFILE,tos-mon-only.img," \
+        -e "s,EXS,EKS," -e "s,EKSFILE,eks.img," \
         -e " s,DTBFILE,${DTBFILE}," \
         -e " s,LNXFILE,${LNXFILE}," \
-        -e "s,FBTYPE,data," -e"/FBFILE/d" \
+        -e "s,FBTYPE,data," -e "/FBFILE/d" \
         -e "s,DXB,DTB," \
-        -e "s,TXC,TBC," -e"s,TBCTYPE,bootloader," -e"s,TBCFILE,nvtboot_cpu.bin," \
+        -e "s,TXC,TBC," -e "s,TBCTYPE,bootloader," -e"s,TBCFILE,nvtboot_cpu.bin," \
         -e "s,PPTSIZE,16896," \
         > ./flash.xml
 
@@ -133,49 +123,53 @@ do_configure() {
     dd if=/dev/zero of=./bmp.blob count=1 bs=70
 
     # Sign binaries
-    python tegraflash.py --bl cboot.bin --bct ${MACHINE}.cfg --odmdata ${ODMDATA} --bldtb ${DTBFILE} --applet nvtboot_recovery.bin --boardconfig $boardcfg --cfg flash.xml --chip 0x21 --cmd "sign" ${BOOTFILES} --keep & \
+    python tegraflash.py --bl cboot.bin --bct ${MACHINE}.cfg --odmdata ${ODMDATA} --bldtb ${DTBFILE} --applet nvtboot_recovery.bin --boardconfig board_config_jetson-tx1.xml --cfg flash.xml --chip 0x21 --cmd "sign" ${BOOTFILES} --keep & \
     export _PID=$! ; wait ${_PID} || true
 
     rm -rf ${DEPLOY_DIR_IMAGE}/bootfiles/*
 
     # These will be used for boot0.img and flashable image
-    cp -r -L ${_PID}/*.encrypt ${DEPLOY_DIR_IMAGE}/bootfiles/
-    cp -r -L ${_PID}/*.hash ${DEPLOY_DIR_IMAGE}/bootfiles/
-    cp -r -L ${_PID}/*.bin ${DEPLOY_DIR_IMAGE}/bootfiles/
-    cp -r -L ${_PID}/*.bct ${DEPLOY_DIR_IMAGE}/bootfiles/
-    cp -r -L ${_PID}/*.blob ${DEPLOY_DIR_IMAGE}/bootfiles/
-    cp -r -L ${_PID}/*.img ${DEPLOY_DIR_IMAGE}/bootfiles/
-    cp ${WORKDIR}/partition_specification210_tx1.txt ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp -r -L ${_PID}/*.encrypt ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp -r -L ${_PID}/*.hash ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp -r -L ${_PID}/*.bin ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp -r -L ${_PID}/*.bct ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp -r -L ${_PID}/*.blob ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp -r -L ${_PID}/*.img ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp ${WORKDIR}/partition_specification210_tx1.txt ${DEPLOY_DIR_IMAGE}/bootfiles/
 
-    rm -rf ${_PID}
+    #rm -rf ${_PID}
 
-    cp ${DEPLOY_DIR_IMAGE}/${DTBFILE} ${DEPLOY_DIR_IMAGE}/bootfiles/
+    #cp ${DTBFILE} ${DEPLOY_DIR_IMAGE}/bootfiles/
+
+    # Following Jenkins generated files cause build/hup bundle to failt to boot
+    #cp ${WORKDIR}/jetson-tx1.bct.tx1 ${DEPLOY_DIR_IMAGE}/bootfiles/jetson-tx1.bct
+    #cp ${WORKDIR}/flash.xml.bin ${DEPLOY_DIR_IMAGE}/bootfiles/flash.xml.bin
 
     # Currently this is the most complicated hw/sw partitions combination,
     # because BFS0 and BFS1 structure from boot0.img, version and nonces must
     # match the KFS0 and KFS1 ones from the partitions in mmcblk0.
     curr=0
     for i in {1..64}; do
-        dd if=${DEPLOY_DIR_IMAGE}/bootfiles/jetson-tx1.bct of=boot0.img bs=1 seek=$curr conv=notrunc
+        dd if=${WORKDIR}/jetson-tx1.bct.tx1 of=boot0.img bs=1 seek=$curr conv=notrunc
         curr=$(expr $curr \+ 16384)
     done
 
     curr=784
     for i in {1..64}; do
-        dd if=${DEPLOY_DIR_IMAGE}/bootfiles/jetson-tx1.bct.hash of=boot0.img bs=1 seek=$curr conv=notrunc
+        dd if=${_PID}/jetson-tx1.bct.hash of=boot0.img bs=1 seek=$curr conv=notrunc
         curr=$(expr $curr \+ 16384)
     done
 
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/cboot.bin.encrypt of=boot0.img bs=1 seek=2801664 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/cboot.bin.hash of=boot0.img bs=1 seek=2801944 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/flash.xml.bin of=boot0.img bs=1 seek=1425408 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/nvtboot.bin of=boot0.img bs=1 seek=1048576 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/nvtboot.bin.encrypt of=boot0.img bs=1 seek=1048576 conv=notrunc
+    dd if=${_PID}/cboot.bin.encrypt of=boot0.img bs=1 seek=2801664 conv=notrunc
+    dd if=${_PID}/cboot.bin.hash of=boot0.img bs=1 seek=2801944 conv=notrunc
+    dd if=${WORKDIR}/flash.xml.bin.tx1 of=boot0.img bs=1 seek=1425408 conv=notrunc
+    dd if=${_PID}/nvtboot.bin of=boot0.img bs=1 seek=1048576 conv=notrunc
+    dd if=${_PID}/nvtboot.bin.encrypt of=boot0.img bs=1 seek=1048576 conv=notrunc
 
     curr=9036
     add=300
     for i in {1..128}; do
-        dd if=${DEPLOY_DIR_IMAGE}/bootfiles/nvtboot.bin.hash of=boot0.img bs=1 seek=$curr conv=notrunc
+        dd if=${_PID}/nvtboot.bin.hash of=boot0.img bs=1 seek=$curr conv=notrunc
         curr=$(expr $curr \+ $add)
 
         if [[ $add -eq 16084 ]]; then
@@ -185,29 +179,37 @@ do_configure() {
         fi
     done
 
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/nvtboot_cpu.bin.encrypt of=boot0.img bs=1 seek=1556480 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/nvtboot_cpu.bin.hash of=boot0.img bs=1 seek=1556760 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/sc7entry-firmware.bin.encrypt of=boot0.img bs=1 seek=3932160 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/sc7entry-firmware.bin.hash of=boot0.img bs=1 seek=3932440 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.encrypt of=boot0.img bs=1 seek=1753088 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.hash of=boot0.img bs=1 seek=1753368 conv=notrunc
+    dd if=${_PID}/nvtboot_cpu.bin.encrypt of=boot0.img bs=1 seek=1556480 conv=notrunc
+    dd if=${_PID}/nvtboot_cpu.bin.hash of=boot0.img bs=1 seek=1556760 conv=notrunc
+    dd if=${_PID}/sc7entry-firmware.bin.encrypt of=boot0.img bs=1 seek=3932160 conv=notrunc
+    dd if=${_PID}/sc7entry-firmware.bin.hash of=boot0.img bs=1 seek=3932440 conv=notrunc
+    dd if=${_PID}/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.encrypt of=boot0.img bs=1 seek=1753088 conv=notrunc
+    dd if=${_PID}/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.hash of=boot0.img bs=1 seek=1753368 conv=notrunc
 
     # Below sb dtb blob does not get generated in the yocto build during signing, however it seems that we can boot without it for now
-    #dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.sb of=boot0.img bs=1 seek=1754112 conv=notrunc
+    #dd if=${_PID}/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.sb of=boot0.img bs=1 seek=1754112 conv=notrunc
 
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/warmboot.bin.encrypt of=boot0.img bs=1 seek=3801088 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/warmboot.bin.hash of=boot0.img bs=1 seek=3801360 conv=notrunc
+    dd if=${_PID}/warmboot.bin.encrypt of=boot0.img bs=1 seek=3801088 conv=notrunc
+    dd if=${_PID}/warmboot.bin.hash of=boot0.img bs=1 seek=3801360 conv=notrunc
     dd if=/dev/zero of=boot0.img bs=1 seek=4194303 count=1 conv=notrunc
 
     # This goes to mmcblk0boot0
     cp boot0.img ${DEPLOY_DIR_IMAGE}/bootfiles/
 
+    cp -r -L ${_PID}/*.encrypt ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp -r -L ${_PID}/*.hash ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp -r -L ${_PID}/*.bin ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp -r -L ${_PID}/*.bct ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp -r -L ${_PID}/*.blob ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp -r -L ${_PID}/*.img ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp ${WORKDIR}/partition_specification210_tx1.txt ${DEPLOY_DIR_IMAGE}/bootfiles/
+
+    rm -rf ${_PID}
 }
 
 do_install() {
     install -d ${D}/${BINARY_INSTALL_PATH}
     cp -r ${DEPLOY_DIR_IMAGE}/bootfiles/* ${D}/${BINARY_INSTALL_PATH}/
-    cp ${WORKDIR}/partition_specification210_tx1.txt ${D}/${BINARY_INSTALL_PATH}/
 }
 
 do_deploy() {
@@ -224,6 +226,7 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 do_install[nostamp] = "1"
 do_deploy[nostamp] = "1"
 do_configure[nostamp] = "1"
+do_fetch[nostamp] = "1"
 
 do_configure[depends] += " virtual/bootloader:do_deploy"
 do_configure[depends] += " tegra-binaries:do_preconfigure"
