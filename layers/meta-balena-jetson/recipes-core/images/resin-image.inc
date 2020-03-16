@@ -110,6 +110,9 @@ IMAGE_INSTALL_append_jetson-tx2 = " \
 IMAGE_INSTALL_append_srd3-tx2 = " \
     machxo2 \
 "
+
+do_rootfs_resinos-img_jetson-tx1[depends] += " tegra210-flash-dry:do_deploy"
+
 IMAGE_INSTALL_append_jetson-tx1 = " \
     tegra210-flash-dry \
     parted \
