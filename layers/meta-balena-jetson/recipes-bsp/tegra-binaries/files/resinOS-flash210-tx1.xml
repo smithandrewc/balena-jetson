@@ -1,27 +1,23 @@
-<?xml version="1.0"?>
-
-<!-- Nvidia Tegra Partition Layout Version 1.0.0 -->
-
 <partition_layout version="01.00.0000">
-    <device type="sdmmc" instance="3">
-        <partition name="BCT" id="2" type="boot_config_table">
+    <device instance="3" type="sdmmc">
+        <partition id="2" name="BCT" type="boot_config_table">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 1048576 </size>
             <allocation_attribute> 8 </allocation_attribute>
             <description> **Required.** Contains Boot Configuration Table (BCT). </description>
-        </partition>
+        <filename> jetson-tx1.bct </filename></partition>
 
-        <partition name="NXC" id="3" type="NVCTYPE">
+        <partition id="3" name="NVC" type="bootloader">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 376832 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> NVCFILE </filename>
+            <filename> nvtboot.bin </filename>
             <description> **Required.** Contains TegraBoot binary. </description>
         </partition>
 
-        <partition name="PT" id="4" type="partition_table">
+        <partition id="4" name="PT" type="partition_table">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 131072 </size>
@@ -30,63 +26,63 @@
             <description> **Required.** Contains Partition Table. </description>
         </partition>
 
-        <partition name="TXC" id="5" type="TBCTYPE">
+        <partition id="5" name="TBC" type="bootloader">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 196608 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> TBCFILE </filename>
+            <filename> nvtboot_cpu.bin </filename>
             <description> **Required.** Contains TegraBoot CPU-side binary. </description>
         </partition>
 
-        <partition name="RP1" id="6" type="data">
+        <partition id="6" name="RP1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 1048576 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> DTBFILE </filename>
+            <filename> tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb </filename>
             <description> **Required.** Contains Bootloader DTB binary. </description>
         </partition>
 
-        <partition name="EBT" id="7" type="bootloader">
+        <partition id="7" name="EBT" type="bootloader">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 999424 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> EBTFILE </filename>
+            <filename> cboot.bin </filename>
             <description> **Required.** Contains CBoot, the final boot stage CPU bootloader binary
               that loads the binary in the kernel partition. </description>
         </partition>
 
-        <partition name="WX0" id="8" type="WB0TYPE">
+        <partition id="8" name="WB0" type="WB0">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 131072 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> WB0FILE </filename>
+            <filename> warmboot.bin </filename>
             <description> **Required.** Contains warm boot binary. </description>
         </partition>
 
-        <partition name="BXF" id="9" type="data">
+        <partition id="9" name="BPF" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 262144 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> BPFFILE </filename>
+            <filename> sc7entry-firmware.bin </filename>
             <description> **Required.** Contains SC7 entry firmware. </description>
         </partition>
 
-        <partition name="NXC-1" id="10" type="NVCTYPE">
+        <partition id="10" name="NVC-1" type="bootloader">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 376832 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> NVCFILE </filename>
+            <filename> nvtboot.bin </filename>
             <description> **Required.** Contains a redundant copy of the
               TegraBoot binary. </description>
         </partition>
 
-        <partition name="PT-1" id="11" type="partition_table">
+        <partition id="11" name="PT-1" type="partition_table">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 131072 </size>
@@ -96,58 +92,58 @@
               Partition Table. </description>
         </partition>
 
-        <partition name="TXC-1" id="12" type="TBCTYPE">
+        <partition id="12" name="TBC-1" type="bootloader">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 196608 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> TBCFILE </filename>
+            <filename> nvtboot_cpu.bin </filename>
             <description> **Required.** Contains a redundant copy of TegraBoot CPU-side
               binary. </description>
         </partition>
 
-        <partition name="RP1-1" id="13" type="data">
+        <partition id="13" name="RP1-1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 1048576 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> DTBFILE </filename>
+            <filename> tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb </filename>
             <description> **Required.** Contains a redundant copy of the Bootloader DTB
               binary. </description>
         </partition>
 
-        <partition name="EBT-1" id="14" type="bootloader">
+        <partition id="14" name="EBT-1" type="bootloader">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 999424 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> EBTFILE </filename>
+            <filename> cboot.bin </filename>
             <description> **Required.** Contains a redundant copy of CBoot, the final boot stage
               CPU bootloader binary. </description>
         </partition>
 
-        <partition name="WX0-1" id="15" type="WB0TYPE">
+        <partition id="15" name="WB0-1" type="WB0">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 131072 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> WB0FILE </filename>
+            <filename> warmboot.bin </filename>
             <description> **Required.** Contains a redundant copy of warm boot
               binary. </description>
         </partition>
 
-        <partition name="BXF-1" id="16" type="data">
+        <partition id="16" name="BPF-1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 262144 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> BPFFILE </filename>
+            <filename> sc7entry-firmware.bin </filename>
             <description> **Required.** Contains a redundant copy of the SC7
               entry firmware. </description>
         </partition>
 
-        <!-- This is padding to ensure VER is at the end of flash -->
-        <partition name="PAD" id="17" type="data">
+        
+        <partition id="17" name="PAD" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 917504 </size>
@@ -157,7 +153,7 @@
             <description> **Required.** Empty padding. </description>
         </partition>
 
-        <partition name="VER_b" id="18" type="data">
+        <partition id="18" name="VER_b" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 65536 </size>
@@ -165,12 +161,11 @@
             <partition_attribute> 0 </partition_attribute>
             <allocation_attribute> 8 </allocation_attribute>
             <percent_reserved> 0 </percent_reserved>
-            <filename> VERFILE </filename>
             <description>  **Required.** Contains a redundant copy of BSP version
               information. </description>
         </partition>
 
-        <partition name="VER" id="19" type="data">
+        <partition id="19" name="VER" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 65536 </size>
@@ -178,99 +173,93 @@
             <partition_attribute> 0 </partition_attribute>
             <allocation_attribute> 8 </allocation_attribute>
             <percent_reserved> 0 </percent_reserved>
-            <filename> VERFILE </filename>
             <description>  **Required.** Contains BSP version information. </description>
         </partition>
     </device>
 
-    <device type="sdmmc" instance="3">
-        <partition name="GP1" id="20" type="GP1">
+    <device instance="3" type="sdmmc">
+        <partition id="20" name="GP1" type="GP1">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 2097152 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <description> **Required.** Contains  primary GPT of the `sdmmc_user` device. All
-              partitions defined after this entry are configured in the kernel, and are
-              accessible by standard partition tools such as gdisk and parted. </description>
         </partition>
 
-        <partition name="DXB" id="21" type="data">
+        <partition id="21" name="DTB" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 976704 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> DTBFILE </filename>
+            <filename> tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb </filename>
             <description> **Required.** Contains kernel DTB binary. </description>
         </partition>
 
-        <partition name="TXS" id="22" type="data">
+        <partition id="22" name="TOS" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 108416 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> TOSFILE </filename>
+	    <filename> tos-mon-only.img </filename>
             <description> **Required.** Contains TOS binary. </description>
         </partition>
 
-        <partition name="EXS" id="23" type="data">
+        <partition id="23" name="EKS" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 81920 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> EKSFILE </filename>
+            <filename> eks.img </filename>
             <description> **Optional.** Contains the encrypted keys. </description>
         </partition>
 
-        <partition name="LNX" id="24" type="data">
+        <partition id="24" name="LNX" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 991232 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> LNXFILE </filename>
-            <description> **Required.** Contains U-Boot, which loads and launches the kernel
-              from the rootfs at `/boot`. </description>
+            <filename> u-boot-dtb.bin </filename>
         </partition>
 
-        <partition name="DXB-1" id="25" type="data">
+        <partition id="25" name="DTB-1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 976704 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> DTBFILE </filename>
+            <filename> tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb </filename>
             <description> **Required.** Contains a redundant copy of the kKernel DTB
               binary. </description>
         </partition>
 
-        <partition name="TXS-1" id="26" type="data">
+        <partition id="26" name="TOS-1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 108416 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> TOSFILE </filename>
+            <filename> tos-mon-only.img </filename>
             <description> **Required.** Contains a redundant copy of the TOS binary. </description>
         </partition>
 
-        <partition name="EXS-1" id="27" type="data">
+        <partition id="27" name="EKS-1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 81920 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> EKSFILE </filename>
+            <filename> eks.img </filename>
             <description> **Optional.** Contains a redundant copy of the encrypted
               keys. </description>
         </partition>
 
-        <partition name="LNX-1" id="28" type="data">
+        <partition id="28" name="LNX-1" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 991232 </size>
             <allocation_attribute> 8 </allocation_attribute>
-            <filename> LNXFILE </filename>
+            <filename> u-boot-dtb.bin </filename>
             <description> **Required.** Contains a redundant copy of U-Boot, which loads and
               launches the kernel from the rootfs at `/boot`. </description>
         </partition>
 
-        <partition name="BMP" id="29" type="data">
+        <partition id="29" name="BMP" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 81920 </size>
@@ -280,14 +269,12 @@
               during boot. </description>
         </partition>
 
-        <partition name="RP4" id="30" type="data">
+        <partition id="30" name="RP4" type="data">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> 262144 </size>
             <allocation_attribute> 8 </allocation_attribute>
             <filename> rp4.blob </filename>
-            <description> **Required.** Contains XUSB module’s firmware file, making XUSB a true
-              USB 3.0 compliant host controller. </description>
         </partition>
         <partition id="31" name="resin-boot" type="data">
             <allocation_policy> sequential </allocation_policy>
@@ -329,7 +316,7 @@
             <allocation_attribute> 808 </allocation_attribute>
             <percent_reserved> 0 </percent_reserved>
         </partition>
-        <partition name="GPT" id="43" type="GPT">
+        <partition id="43" name="GPT" type="GPT">
             <allocation_policy> sequential </allocation_policy>
             <filesystem_type> basic </filesystem_type>
             <size> -1 </size>

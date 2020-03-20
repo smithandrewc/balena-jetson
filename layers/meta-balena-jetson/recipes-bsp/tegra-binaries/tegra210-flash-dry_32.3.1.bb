@@ -56,7 +56,7 @@ BOOTFILES=" \
 do_configure() {
     local destdir="${WORKDIR}/tegraflash"
     local f
-    PATH="${STAGING_BINDIR_NATIVE}/tegra210-flash:${PATH}"
+    #PATH="${STAGING_BINDIR_NATIVE}/tegra210-flash:${PATH}"
     rm -rf "${WORKDIR}/tegraflash"
     mkdir -p "${WORKDIR}/tegraflash"
     oldwd=`pwd`
@@ -83,57 +83,26 @@ do_configure() {
     ln -s "${DEPLOY_DIR_IMAGE}/cboot-${MACHINE}.bin" ./cboot.bin
     ln -sf "${DEPLOY_DIR_IMAGE}/tos-${MACHINE}.img" ./tos-mon-only.img
 
-    ln -s ${STAGING_BINDIR_NATIVE}/tegra210-flash .
     mkdir -p ${DEPLOY_DIR_IMAGE}/bootfiles
 
     # tegraflash.py script will sign all binaries
     # mentioned for signing in flash.xml.in
     sed -i -e "s/\[DTBNAME\]/${DTBFILE}/g" ${WORKDIR}/partition_specification210_tx1.txt
-    cp ${WORKDIR}/resinOS-flash210-tx1.xml flash.210.in
+    cp ${WORKDIR}/resinOS-flash210-tx1.xml flash.xml
 
     # prep env for tegraflash
-    ln -sf ${STAGING_BINDIR_NATIVE}/tegra210-flash/${SOC_FAMILY}-flash-helper.sh ./
-    ln -sf ${STAGING_BINDIR_NATIVE}/tegra210-flash/tegraflash.py ./
-    ln -sf ${STAGING_BINDIR_NATIVE}/tegra210-flash/
+    md5sum ${STAGING_BINDIR_NATIVE}/tegra210-flash/* > tools_md5sums.txt
+    cp -r ${STAGING_BINDIR_NATIVE}/tegra210-flash/* .
     rm -rf signed
 
     local destdir="$1"
     local gptsize="$2"
-    local ebtsize=$(tegraflash_roundup_size cboot.bin)
-    local nvcsize=$(tegraflash_roundup_size nvtboot.bin)
-    local tbcsize=$(tegraflash_roundup_size nvtboot_cpu.bin)
-    local dtbsize=$(tegraflash_roundup_size ${DTBFILE})
-    local bpfsize=$(tegraflash_roundup_size sc7entry-firmware.bin)
-    local wb0size=$(tegraflash_roundup_size warmboot.bin)
-    local tossize=$(tegraflash_roundup_size tos-mon-only.img)
-
-    # flash.xml comes with placeholders for partition
-    # names and binaries to be signed
-    cat "flash.210.in" | sed -e "s,EBTFILE,cboot.bin," \
-        -e "s,EBTFILE,cboot.bin," -e"s,EBTSIZE,$ebtsize," \
-        -e "/NCTFILE/d" -e"s,NCTTYPE,data," \
-        -e "/SOSFILE/d" \
-        -e "s,NXC,NVC," -e"s,NVCTYPE,bootloader," -e"s,NVCFILE,nvtboot.bin," \
-        -e "s,MPBTYPE,data," -e"/MPBFILE/d" \
-        -e "s,MBPTYPE,data," -e"/MBPFILE/d" \
-        -e "s,BXF,BPF," -e"s,BPFFILE,sc7entry-firmware.bin," \
-        -e "/BPFDTB-FILE/d" \
-        -e "s,WX0,WB0," -e"s,WB0TYPE,WB0," -e"s,WB0FILE,warmboot.bin," \
-        -e "s,TXS,TOS," -e"s,TOSFILE,tos-mon-only.img," \
-        -e "s,EXS,EKS," -e"s,EKSFILE,eks.img," \
-        -e " s,DTBFILE,${DTBFILE}," \
-        -e " s,LNXFILE,${LNXFILE}," \
-        -e "s,FBTYPE,data," -e"/FBFILE/d" \
-        -e "s,DXB,DTB," \
-        -e "s,TXC,TBC," -e"s,TBCTYPE,bootloader," -e"s,TBCFILE,nvtboot_cpu.bin," \
-        -e "s,PPTSIZE,16896," \
-        > ./flash.xml
 
     # Disable cboot logo
     dd if=/dev/zero of=./bmp.blob count=1 bs=70
 
     # Sign binaries
-    python tegraflash.py --bl cboot.bin --bct ${MACHINE}.cfg --odmdata ${ODMDATA} --bldtb ${DTBFILE} --applet nvtboot_recovery.bin --boardconfig $boardcfg --cfg flash.xml --chip 0x21 --cmd "sign" ${BOOTFILES} --keep & \
+    python ./tegraflash.py --bl cboot.bin --bct ${MACHINE}.cfg --odmdata ${ODMDATA} --bldtb ${DTBFILE} --applet nvtboot_recovery.bin --boardconfig $boardcfg --cfg flash.xml --chip 0x21 --cmd "sign" --keep ${BOOTFILES}  & \
     export _PID=$! ; wait ${_PID} || true
 
     rm -rf ${DEPLOY_DIR_IMAGE}/bootfiles/*
@@ -145,6 +114,7 @@ do_configure() {
     cp -r -L ${_PID}/*.bct ${DEPLOY_DIR_IMAGE}/bootfiles/
     cp -r -L ${_PID}/*.blob ${DEPLOY_DIR_IMAGE}/bootfiles/
     cp -r -L ${_PID}/*.img ${DEPLOY_DIR_IMAGE}/bootfiles/
+    cp tools_md5sums.txt ${DEPLOY_DIR_IMAGE}/bootfiles/
     cp ${WORKDIR}/partition_specification210_tx1.txt ${DEPLOY_DIR_IMAGE}/bootfiles/
 
     rm -rf ${_PID}
@@ -190,7 +160,7 @@ do_configure() {
     dd if=${DEPLOY_DIR_IMAGE}/bootfiles/sc7entry-firmware.bin.encrypt of=boot0.img bs=1 seek=3932160 conv=notrunc
     dd if=${DEPLOY_DIR_IMAGE}/bootfiles/sc7entry-firmware.bin.hash of=boot0.img bs=1 seek=3932440 conv=notrunc
     dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.encrypt of=boot0.img bs=1 seek=1753088 conv=notrunc
-    dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.hash of=boot0.img bs=1 seek=1753368 conv=notrunc
+    #dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.hash of=boot0.img bs=1 seek=1753368 conv=notrunc
 
     # Below sb dtb blob does not get generated in the yocto build during signing, however it seems that we can boot without it for now
     #dd if=${DEPLOY_DIR_IMAGE}/bootfiles/tegra210-jetson-tx1-p2597-2180-a01-devkit.dtb.sb of=boot0.img bs=1 seek=1754112 conv=notrunc

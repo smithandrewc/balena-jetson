@@ -98,7 +98,7 @@ EOF
 }
 
 
-DEVICE_SPECIFIC_SPACE_jetson-tx1 = "40960"
+DEVICE_SPECIFIC_SPACE_jetson-tx1 = "49152"
 do_image_resinos-img_jetson-tx1[depends] += " tegra210-flash-dry:do_deploy"
 device_specific_configuration_jetson-tx1() {
     partitions=$(cat ${DEPLOY_DIR_IMAGE}/tegra-binaries/partition_specification210_tx1.txt)
@@ -107,10 +107,10 @@ device_specific_configuration_jetson-tx1() {
       part_name=$(echo $n | cut -d ':' -f 1)
       file_name=$(echo $n | cut -d ':' -f 2)
       part_size=$(echo $n | cut -d ':' -f 3)
-      file_path=$(find ${DEPLOY_DIR_IMAGE}/bootfiles -name $file_name)
+      file_path=${DEPLOY_DIR_IMAGE}/bootfiles/${file_name}
       END=$(expr ${START} \+ ${part_size} \- 1)
-      parted -s ${RESIN_RAW_IMG} unit s mkpart $part_name ${START} ${END}
-      dd if=$file_path of=${RESIN_RAW_IMG} conv=notrunc seek=${START} bs=512
+      parted -s ${RESIN_RAW_IMG} unit s mkpart ${part_name} ${START} ${END}
+      dd if=${file_path} of=${RESIN_RAW_IMG} conv=notrunc seek=${START} bs=512
       START=$(expr ${END} \+ 1)
     done
 
