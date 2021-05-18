@@ -1,4 +1,20 @@
 - commits:
+    - subject: 'linux: enable crashdump support for arm64'
+      hash: 4bf8574fea1988c6838e5eda0a6071253f69a0aa
+      body: |
+        Backport patches from linux v4.12 for enabling memory reservation for
+        crash kernel on arm64, and enable configs necessary for loading a crash
+        kernel.
+      footer:
+        Changelog-entry: 'linux: enable crashdump support for arm64'
+        changelog-entry: 'linux: enable crashdump support for arm64'
+        Signed-off-by: Joseph Kogut <joseph@balena.io>
+        signed-off-by: Joseph Kogut <joseph@balena.io>
+      author: Joseph Kogut
+      nested: []
+  version: 2.73.15+rev2
+  date: 2021-05-18T16:06:27.483Z
+- commits:
     - subject: Update meta-balena from v2.73.1 to v2.73.15
       hash: d8cc87d0bc6b92c312f16ebbc592692305ec95c2
       body: |
