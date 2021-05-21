@@ -153,7 +153,7 @@ do_configure() {
 
     # Disable cboot displayed vendor logo
     dd if=/dev/zero of=bmp.blob count=1 bs=1
-
+    touch VERFILE
     python3 tegraflash.py --bl cboot.bin --bldtb "${DTBFILE}" --chip 0x21 --applet nvtboot_recovery.bin --bct "${MACHINE}.cfg" --cfg flash.xml --cmd "sign" --keep --odmdata "${ODMDATA}" & \
         export _PID=$! ; wait ${_PID} || true
 
